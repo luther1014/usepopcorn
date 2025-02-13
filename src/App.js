@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRatings from "./StarRatings";
 
 const tempMovieData = [
@@ -57,10 +57,12 @@ export default function App() {
   const [movies, setMovies] = useState([]);
   const [query, setQuery] = useState("batman");
   const [selectedMovie, setSelectedMovie] = useState("");
-  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const tempQuery = "batman";
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
 
   function handleSelectMovie(id) {
     setSelectedMovie((selectedMovie) => (id === selectedMovie ? null : id));
@@ -73,6 +75,13 @@ export default function App() {
   function handleDeleteWatched(movieID) {
     setWatched((movies) => movies.filter((movie) => movie.imdbID !== movieID));
   }
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   useEffect(
     function () {
@@ -314,6 +323,22 @@ function NavBar({ children }) {
 }
 
 function SeachBar({ query, setQuery }) {
+  const inputEl = useRef();
+
+  useEffect(function () {
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === "Enter") {
+        inputEl.current.focus();
+        setQuery("");
+      }
+    }
+    document.addEventListener("keydown", callback);
+
+    return function () {
+      document.removeEventListener("keydown", callback);
+    };
+  }, []);
   return (
     <input
       className="search"
@@ -321,6 +346,7 @@ function SeachBar({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
