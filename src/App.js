@@ -388,7 +388,7 @@ function MoviesList({ movies, onSelectMovie }) {
   return (
     <ul className="list list-movies">
       {movies?.map((movie) => (
-        <Movie movie={movie} onSelectMovie={onSelectMovie} />
+        <Movie movie={movie} onSelectMovie={onSelectMovie} key={movie.imdbID} />
       ))}
     </ul>
   );
@@ -413,7 +413,11 @@ function WatchedMoviesList({ watched, onDeleteWatched }) {
   return (
     <ul className="list">
       {watched.map((movie) => (
-        <WatchedMovie movie={movie} onDeleteWatched={onDeleteWatched} />
+        <WatchedMovie
+          movie={movie}
+          onDeleteWatched={onDeleteWatched}
+          key={movie.imdbID}
+        />
       ))}
     </ul>
   );
@@ -460,7 +464,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⭐️</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(2)}</span>
         </p>
         <p>
           <span>🌟</span>
