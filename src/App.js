@@ -191,6 +191,15 @@ function MovieDetails({ selectedMovie, onClose, onAddMovie, wachedMovies }) {
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
+  const ratingsCount = useRef(0);
+
+  useEffect(
+    function () {
+      if (userRating) ratingsCount.current += 1;
+    },
+    [userRating]
+  );
+
   const isWatched = wachedMovies.find(
     (movie) => movie.imdbID === selectedMovie
   );
@@ -254,6 +263,7 @@ function MovieDetails({ selectedMovie, onClose, onAddMovie, wachedMovies }) {
       imdbRating: Number(imdbRating),
       Poster: poster,
       userRating,
+      countRatingsDecisions: ratingsCount.current,
     };
     onAddMovie(movie);
     onClose();
@@ -325,20 +335,23 @@ function NavBar({ children }) {
 function SeachBar({ query, setQuery }) {
   const inputEl = useRef();
 
-  useEffect(function () {
-    function callback(e) {
-      if (document.activeElement === inputEl.current) return;
-      if (e.code === "Enter") {
-        inputEl.current.focus();
-        setQuery("");
+  useEffect(
+    function () {
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+        if (e.code === "Enter") {
+          inputEl.current.focus();
+          setQuery("");
+        }
       }
-    }
-    document.addEventListener("keydown", callback);
+      document.addEventListener("keydown", callback);
 
-    return function () {
-      document.removeEventListener("keydown", callback);
-    };
-  }, []);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [setQuery]
+  );
   return (
     <input
       className="search"
@@ -498,7 +511,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{avgRuntime.toFixed(2)} min</span>
         </p>
       </div>
     </div>
